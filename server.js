@@ -31,7 +31,7 @@ app.use(passport.initialize());
 var router = express.Router();
 var port = process.env.PORT || 3000;
 
-router.route('/', function(req, res){
+app.get('/', function(req, res){
     res.render('home');
 });
 
