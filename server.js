@@ -30,6 +30,11 @@ app.use(passport.initialize());
 
 var router = express.Router();
 var port = process.env.PORT || 3000;
+
+router.route('/', function(req, res){
+    res.render('home');
+});
+
 router.route('/character')
     .post(authController.isAuthenticated, characterController.postCharacters)
     .get(authController.isAuthenticated, characterController.getCharacters);
