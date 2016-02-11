@@ -1,17 +1,51 @@
 <!doctype html>
 <html lang="en">
 <head>
-
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="/node_modules/socket.io/lib/socket.io.js"></script>
+    <script src="app.js"></script>
 </head>
 <body>
-<h1>Welcome to Table Top Squire</h1>
-<div id="future"></div>
-<button type = "button">Create New Game</button>
-<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-<script src="/socket.io/socket.io.js"></script>
+<!--<h1>Welcome to Table Top Squire</h1>-->
+<div id="gameArea">
+
+</div>
+<script id="intro-screen-template" type="text/template">
+    <div>
+        <div>
+            Welcome to Table Top Squire
+        </div>
+
+        <div>
+            <button id="btnCreateGame"></button>
+            <button id="btnJoinGame"></button>
+        </div>
+    </div>
+</script>
+
+<script id="join-game-template" type="text/template">
+    <div>
+        <div>
+            <label for="inputPlayerName">Your Name:</label>
+            <input id="inputPlayerName" type="text"/>
+        </div>
+
+        <div>
+            <button id="btnStart">Join</button>
+            <div id="playerWaitingMessage"></div>
+        </div>
+
+    </div>
+</script>
+
+<script id="host-game-template" type="text/template">
+    <div>
+        <p>This is where you can put Dungeon Manager Only information.</p>
+    </div>
+</script>
 <script>
     //var io = require('socket.io');
-    var socket = io.connect('http://localhost:8080');
+    var socket = io.connect('http://localhost');
     socket.on('connect', function(data) {
         socket.emit('join', 'Hello World from client');
     });

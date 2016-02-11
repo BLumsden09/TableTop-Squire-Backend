@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io').listen(http);
-var tts = require('./public/tabletop.js');
+var tts = require('./tabletop.js');
 var connect = require('connect');
 
 app.use(express.static(__dirname + '/public'));
@@ -14,7 +14,7 @@ http.listen(8080, function(){
     console.log('Listening on port: 8080');
 });
 
-io.on('connection', function(socket){
+io.sockets.on('connection', function(socket){
     console.log('Hi');
     socket.on('join', function(data) {
         tts.initGame(io, socket);
