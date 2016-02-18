@@ -35,7 +35,7 @@ app.get('/', function(req, res){
     res.render('home');
 });
 
-router.route('/character')
+router.route('/characters')
     .post(authController.isAuthenticated, characterController.postCharacters)
     .get(authController.isAuthenticated, characterController.getCharacters);
 
@@ -47,6 +47,13 @@ router.route('/character/:character_id')
 router.route('/users')
     .post(userController.postUsers)
     .get(authController.isAuthenticated, userController.getUsers);
+
+router.route('/user')
+    .get(authController.isAuthenticated, userController.getUser);
+
+router.route('/user/:user_id')
+    .put(authController.isAuthenticated, userController.putUser)
+    .delete(authController.isAuthenticated, userController.deleteUser);
 
 router.route('/clients')
     .post(authController.isAuthenticated, clientController.postClients)

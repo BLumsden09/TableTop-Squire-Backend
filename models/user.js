@@ -2,6 +2,11 @@ var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 
 var UserSchema = new mongoose.Schema({
+    email: {
+        type: String,
+        unique: true,
+        required: true
+    },
     username: {
         type: String,
         unique: true,
@@ -28,6 +33,12 @@ UserSchema.pre('save', function(callback){
             callback();
         });
     });
+});
+
+UserSchema.pre('remove', function(callback) {
+    Sweepstakes.remove({userId: this._id}).exec();
+    Submission.remove({userId: this._id}).exec();
+    callback();
 });
 
 UserSchema.methods.verifyPassword = function(password, cb) {
