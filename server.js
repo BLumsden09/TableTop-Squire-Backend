@@ -45,8 +45,7 @@ router.route('/character/:character_id')
     .delete(authController.isAuthenticated, characterController.deleteCharacter);
 
 router.route('/users')
-    .post(userController.postUsers)
-    .get(authController.isAuthenticated, userController.getUsers);
+    .post(userController.postUsers);
 
 router.route('/user')
     .get(authController.isAuthenticated, userController.getUser);
