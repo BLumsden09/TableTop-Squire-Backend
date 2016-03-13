@@ -48,11 +48,9 @@ router.route('/users')
     .post(userController.postUsers);
 
 router.route('/user')
-    .get(authController.isAuthenticated, userController.getUser);
-
-router.route('/user/:user_id')
+    .get(authController.isAuthenticated, userController.getUser)
     .put(authController.isAuthenticated, userController.putUser)
-    .delete(authController.isAuthenticated, userController.deleteUser);
+    .delete(authController.isAuthenticated, userController.deleteUser);    
 
 router.route('/clients')
     .post(authController.isAuthenticated, clientController.postClients)
