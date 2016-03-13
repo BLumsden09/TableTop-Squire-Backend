@@ -25,19 +25,18 @@ exports.getUser = function(req, res){
 };
 
 exports.putUser = function(req, res) {
-
-    User.update({ _id: req.user._id },
-        {
-            email: req.body.email,
-            password: req.body.password
-        },
-        function(err){
+    User.findOne({ _id: req.user._id }, function(err, user){
+        if(err)
+            res.send(err);
+        user.email = req.body.email;
+        user.password = req.body.password;
+        user.save(function(err){
             if(err)
                 res.send(err);
 
             res.json({ message: 'User updated!' });
-        }
-    );
+        });
+    });
 };
 
 exports.deleteUser = function(req, res){
