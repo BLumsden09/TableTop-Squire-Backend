@@ -20,12 +20,14 @@ var UserSchema = new mongoose.Schema({
 
 UserSchema.pre('save', function(callback){
     var user = this;
+    console.log("Before isModified \n");
 
     if(!user.isModified('password')) return callback();
 
+    console.log("After isModified \n");
     bcrypt.genSalt(5, function(err, salt){
         if(err) return callback(err);
-
+        console.log("Before hash \n");
         bcrypt.hash(user.password, salt, null, function(err, hash){
             if(err) return callback(err);
 

@@ -1,4 +1,5 @@
 var express = require('express');
+var app = express();
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var ejs = require('ejs');
@@ -9,10 +10,15 @@ var userController = require('./controllers/user');
 var authController = require('./controllers/auth');
 var oauth2Controller = require('./controllers/oauth2');
 var clientController = require('./controllers/client');
+var router = express.Router();
+var port = process.env.PORT || 3000;
+//var io = require('socket.io').listen(http);
+var tts = require('./tabletop');
+var http = require('http').createServer(app);
+var io = require("socket.io")(http);
 
 mongoose.connect('mongodb://localhost:27017/tabletopsquire');
 
-var app = express();
 
 app.set('view engine', 'ejs');
 
@@ -27,9 +33,6 @@ app.use(session({
 }));
 
 app.use(passport.initialize());
-
-var router = express.Router();
-var port = process.env.PORT || 3000;
 
 app.get('/', function(req, res){
     res.render('home');
@@ -65,5 +68,13 @@ router.route('/oauth2/token')
 
 app.use('/api', router);
 
-app.listen(port);
+http.listen(port);
 console.log("Server is listening on port " + port);
+
+io.on('connection', function(socket){
+    console.log('a user connected');
+    socket.on('join', function() {
+        console.log("join?");
+        tts.initGame(io, socket);
+    });
+});
