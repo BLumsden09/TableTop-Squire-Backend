@@ -1,14 +1,16 @@
 var io;
 var gameSocket;
 var App;
-
+var rooms = [];
 exports.initGame = function(sio, socket){
     io = sio;
     gameSocket = socket;
+    rooms.push('global');
     gameSocket.emit('connected', gameSocket.id);
-
+    
     gameSocket.on('createNewGame', createNewGame);
     gameSocket.on('playerJoinGame', playerJoinGame);
+    gameSocket.on('enterGlobalRoom', enterGlobalRoom);
     gameSocket.on('newGameCreated', onNewGameCreated);
     gameSocket.on('playerJoinedRoom', playerJoinedRoom);
     gameSocket.on('error', error );
@@ -17,6 +19,7 @@ exports.initGame = function(sio, socket){
 function createNewGame(){
     var gameID = (Math.random()* 100000) | 0;
     console.log("Hey I created a new game!");
+    rooms.push(gameID);
     gameSocket.emit('roomData', {gameID: gameID, socketID: gameSocket.id});
     gameSocket.join(gameID.toString());
     console.log("Joined room");
@@ -32,6 +35,11 @@ function playerJoinGame(data){
     } else{
         this.emit('error', {message: "This room does not exist."});
     }
+}
+
+function enterGlobalRoom(data){
+    console.log("Attempting to enter global room");
+    App.Player.onJoinGlobal(data);
 }
 
 function onNewGameCreated(data){
@@ -74,22 +82,13 @@ App = {
     },
 
     Player : {
+        gameID: '',
         socketID: '',
         myName: '',
         players: [],
-        onJoinClick: function(){
-            console.log('You have have clicked to join a game');
-        },
-
-        onPlayerStartClick: function(){
-            var data = {
-                gameID: +($('#inputGameId').val()),
-                playerName: $('#inputPlayerName').val()
-            };
-
-            this.emit('playerJoinGame', data);
+        onJoinGlobal: function(data){
             App.myRole = 'Player';
-            App.Player.myName = data.playerName;
+            gameSocket.join('global');
         },
 
         updateWaitingScreen: function(data){
