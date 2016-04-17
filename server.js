@@ -2,14 +2,17 @@ var express = require('express');
 var app = express();
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
-var ejs = require('ejs');
+//var ejs = require('ejs');
+var hbs = require('express-hbs');
 var session = require('express-session');
 var passport = require('passport');
+var path = require('path');
 var characterController = require('./controllers/characterSheet');
 var userController = require('./controllers/user');
 var authController = require('./controllers/auth');
 var oauth2Controller = require('./controllers/oauth2');
 var clientController = require('./controllers/client');
+
 var router = express.Router();
 var port = process.env.PORT || 3000;
 //var io = require('socket.io').listen(http);
@@ -19,9 +22,13 @@ var io = require("socket.io")(http);
 
 mongoose.connect('mongodb://localhost:27017/tabletopsquire');
 
-
-app.set('view engine', 'ejs');
-
+app.engine('hbs', hbs.express4({
+    defaultLayout: __dirname + '/views/layouts/default.hbs',
+    partialsDir: __dirname + '/views/partials',
+    layoutsDir: __dirname + '/views/layouts'
+}));
+app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, '/views'));
 app.use(bodyParser.urlencoded({
     extended: true
 }));
@@ -34,8 +41,10 @@ app.use(session({
 
 app.use(passport.initialize());
 
+app.use('/public', express.static('public'));
+
 app.get('/', function(req, res){
-    res.render('home');
+    res.render('pages/home');
 });
 
 router.route('/characters')

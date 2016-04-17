@@ -1,0 +1,19 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{title}}</title>
+    <link type="text/css" rel="stylesheet" href="/public/css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet" href="/public/css/styles.css"/>
+    {{{block "pageStyles"}}}
+</head>
+
+<body class="background" background="/public/img/background.jpg">
+{{> navbar}}
+<!-- Placeholder for page content. -->
+{{{body}}}
+
+<!-- A block is placeholder for pieces of content defined in a page. -->
+{{{block 'pageScripts'}}}
+</body>
+</html>

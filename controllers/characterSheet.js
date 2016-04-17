@@ -25,6 +25,7 @@ exports.postCharacters = function(req, res) {
 };
 
 exports.getCharacters = function(req, res) {
+    console.log("getCharacters enter\n");
     Character.find({ userId: req.user._id }, function(err, characters){
         if(err)
             res.send(err);

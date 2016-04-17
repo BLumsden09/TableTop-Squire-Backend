@@ -1,13 +1,15 @@
 {
-  "name": "beer",
+  "name": "tabletopsquire-backend",
   "main": "server.js",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.14.2",
     "connect": "",
-    "ejs": "^2.4.1",
     "express": "^4.13.4",
+    "express-hbs": "^0.8.4",
     "express-session": "^1.13.0",
+    "express4-handlebars": "^0.2.0",
+    "handlebars": "^4.0.5",
     "mongoose": "^4.4.0",
     "oauth2orize": "^1.2.2",
     "passport": "^0.3.2",
