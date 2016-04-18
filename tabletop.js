@@ -24,7 +24,7 @@ function createNewGame(data){
     console.log("Hey I created a new game!");
     rooms.push(data.game);
     roomLists[data.game] = [];
-    roomLists[data.game].push({playerName: data.player, characterName: data.character});
+    roomLists[data.game].push({name: data.player, character: data.character});
     gameSocket.emit('roomData', {gameID: data.game, socketID: gameSocket.id});
     gameSocket.join(data.game);
     console.log("Joined room");
@@ -35,10 +35,9 @@ function playerJoinGame(data){
     //var room = gameSocket.sockets.manager.rooms["/" + data.gameID];
     if(room != undefined){
         data.socketID = gameSocket.id;
-        roomLists[data.gameID].push({playerName: data.playerName, characterName: data.characterName});
+        roomLists[data.gameID].push({name: data.playerName, character: data.characterName});
+        data.players = roomLists[data.gameID];
         gameSocket.join(data.gameID).emit('playerJoinedRoom', data);
-        console.log(io.sockets.adapter.rooms[data.gameID]);
-        getPlayerData(data);
     } else{
         this.emit('error', {message: "This room does not exist."});
     }
@@ -67,6 +66,7 @@ function messageRoom(data){
     console.log(data);
     var message = {playerName: data.playerName, message: data.message};
     //io.in(data.gameID).emit("message", message);
+    console.log(io.sockets.adapter.rooms[data.gameID]);
     gameSocket.broadcast.to(data.gameID).emit("message", message);
     //io.emit("message", message);
 }
