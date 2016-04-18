@@ -82,8 +82,8 @@ console.log("Server is listening on port " + port);
 
 io.on('connection', function(socket){
     console.log('a user connected');
-    socket.on('join', function() {
+    socket.on('join', function(player) {
         console.log("join?");
-        tts.initGame(io, socket);
+        tts.initGame(io, socket, player);
     });
 });

@@ -2,25 +2,26 @@ var io;
 var gameSocket;
 var App;
 var rooms = [];
+var players  = [];
 var roomLists = {};
-exports.initGame = function(sio, socket){
+exports.initGame = function(sio, socket, player){
     io = sio;
     gameSocket = socket;
     rooms.push('global');
     gameSocket.emit('connected', gameSocket.id);
-    
+    players.push({name: player.name, email: player.email, socket: gameSocket.id});
     gameSocket.on('createNewGame', createNewGame);
     gameSocket.on('playerJoinGame', playerJoinGame);
     gameSocket.on('enterGlobalRoom', enterGlobalRoom);
     gameSocket.on('newGameCreated', onNewGameCreated);
     gameSocket.on('playerJoinedRoom', playerJoinedRoom);
     gameSocket.on('messageRoom', messageRoom);
+    gameSocket.on('invitePlayerName', invitePlayerName);
     gameSocket.on('getPlayerData', getPlayerData);
     gameSocket.on('error', error );
 };
 
 function createNewGame(data){
-    //var gameID = (Math.random()* 100000) | 0;
     console.log(data);
     var socket = this;
     console.log("Hey I created a new game!");
@@ -47,11 +48,6 @@ function playerJoinGame(data){
     }
 }
 
-function getPlayerData(data){
-    console.log(roomLists[data.gameID]);
-    var socket = this;
-    socket.emit("currentPlayers", roomLists[data.gameID]);
-}
 
 function enterGlobalRoom(data){
     console.log("Attempting to enter global room");
@@ -65,6 +61,24 @@ function onNewGameCreated(data){
 
 function playerJoinedRoom(data){
         App[App.myRole].updateWaitingScreen(data);
+}
+
+function invitePlayerName(data){
+    var socket = this;
+    var invitedSocket = null;
+    players.forEach(function(player){
+        if(player.name === data.name){
+            invitedSocket = player.socket;
+        }
+    });
+    if(invitedSocket != null)
+        socket.broadcast.to(invitedSocket).emit("gameInvite", {gameID: data.gameID, playerName: data.playerName});
+}
+
+function getPlayerData(data){
+    console.log(roomLists[data.gameID]);
+    var socket = this;
+    socket.emit("currentPlayers", roomLists[data.gameID]);
 }
 
 function messageRoom(data){
