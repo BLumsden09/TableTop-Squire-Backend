@@ -26,7 +26,9 @@ function createNewGame(data){
     console.log("Hey I created a new game!");
     rooms.push(data.game);
     roomLists[data.game] = [];
-    roomLists[data.game].push({name: data.player, character: data.character});
+    var player = {player: data.player};
+    if(!isInArray(player, roomLists[data.game]))
+        roomLists[data.game].push(player);
     socket.emit('roomData', {gameID: data.game, socketID: gameSocket.id});
     socket.join(data.game);
     console.log("Joined room");
@@ -37,9 +39,9 @@ function playerJoinGame(data){
     var socket = this;
     //var room = gameSocket.sockets.manager.rooms["/" + data.gameID];
     if(room != undefined){
-        roomLists[data.gameID].push({name: data.playerName, character: data.characterName});
-        data.players = roomLists[data.gameID];
-        socket.join(data.gameID).emit('playerJoinedRoom', data);
+        socket.join(data.gameID).emit('joinedGame', {gameID: data.gameID, socketID: gameSocket.id, players: roomLists[data.gameID]});
+        roomLists[data.gameID].push({player: data.player});
+        socket.broadcast.to(data.gameID).emit('newPlayerJoinedGame', data.player);
     } else{
         this.emit('error', {message: "This room does not exist."});
     }
@@ -73,6 +75,10 @@ function messageRoom(data){
     console.log(io.sockets.adapter.rooms[data.gameID]);
     socket.broadcast.to(data.gameID).emit("message", message);
     //io.emit("message", message);
+}
+
+function isInArray(value, array) {
+    return array.indexOf(value) > -1;
 }
 
 function error(data){
