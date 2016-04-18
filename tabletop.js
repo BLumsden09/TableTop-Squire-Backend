@@ -2,6 +2,7 @@ var io;
 var gameSocket;
 var App;
 var rooms = [];
+var roomLists = {};
 exports.initGame = function(sio, socket){
     io = sio;
     gameSocket = socket;
@@ -13,28 +14,39 @@ exports.initGame = function(sio, socket){
     gameSocket.on('enterGlobalRoom', enterGlobalRoom);
     gameSocket.on('newGameCreated', onNewGameCreated);
     gameSocket.on('playerJoinedRoom', playerJoinedRoom);
+    gameSocket.on('messageRoom', messageRoom);
+    gameSocket.on('getPlayerData', getPlayerData);
     gameSocket.on('error', error );
 };
 
-function createNewGame(){
-    var gameID = (Math.random()* 100000) | 0;
+function createNewGame(data){
+    //var gameID = (Math.random()* 100000) | 0;
     console.log("Hey I created a new game!");
-    rooms.push(gameID);
-    gameSocket.emit('roomData', {gameID: gameID, socketID: gameSocket.id});
-    gameSocket.join(gameID.toString());
+    rooms.push(data.game);
+    roomLists[data.game] = [];
+    roomLists[data.game].push({playerName: data.player, characterName: data.character});
+    gameSocket.emit('roomData', {gameID: data.game, socketID: gameSocket.id});
+    gameSocket.join(data.game);
     console.log("Joined room");
 }
 
 function playerJoinGame(data){
-    var sock = this;
-    var room = gameSocket.sockets.manager.rooms["/" + data.gameID];
-
+    var room = io.sockets.adapter.rooms[data.gameID];
+    //var room = gameSocket.sockets.manager.rooms["/" + data.gameID];
     if(room != undefined){
-        data.socketID = sock.id;
-        sock.join(data.gameID).emit('playerJoinedRoom', data);
+        data.socketID = gameSocket.id;
+        roomLists[data.gameID].push({playerName: data.playerName, characterName: data.characterName});
+        gameSocket.join(data.gameID).emit('playerJoinedRoom', data);
+        console.log(io.sockets.adapter.rooms[data.gameID]);
+        getPlayerData(data);
     } else{
         this.emit('error', {message: "This room does not exist."});
     }
+}
+
+function getPlayerData(data){
+    console.log(roomLists[data.gameID]);
+    gameSocket.emit("currentPlayers", roomLists[data.gameID]);
 }
 
 function enterGlobalRoom(data){
@@ -51,10 +63,17 @@ function playerJoinedRoom(data){
         App[App.myRole].updateWaitingScreen(data);
 }
 
-function error(data){
-        alert(data.message);
+function messageRoom(data){
+    console.log(data);
+    var message = {playerName: data.playerName, message: data.message};
+    //io.in(data.gameID).emit("message", message);
+    gameSocket.broadcast.to(data.gameID).emit("message", message);
+    //io.emit("message", message);
 }
 
+function error(data){
+        console.log("Error: " + data.message);
+}
 
 App = {
     gameID: 0,
