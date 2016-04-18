@@ -21,23 +21,27 @@ exports.initGame = function(sio, socket){
 
 function createNewGame(data){
     //var gameID = (Math.random()* 100000) | 0;
+    console.log(data);
+    var socket = this;
     console.log("Hey I created a new game!");
     rooms.push(data.game);
     roomLists[data.game] = [];
-    roomLists[data.game].push({name: data.player, character: data.character});
-    gameSocket.emit('roomData', {gameID: data.game, socketID: gameSocket.id});
-    gameSocket.join(data.game);
+    var player = {player: data.player};
+    if(!isInArray(player, roomLists[data.game]))
+        roomLists[data.game].push(player);
+    socket.emit('roomData', {gameID: data.game, socketID: gameSocket.id});
+    socket.join(data.game);
     console.log("Joined room");
 }
 
 function playerJoinGame(data){
     var room = io.sockets.adapter.rooms[data.gameID];
+    var socket = this;
     //var room = gameSocket.sockets.manager.rooms["/" + data.gameID];
     if(room != undefined){
-        data.socketID = gameSocket.id;
-        roomLists[data.gameID].push({name: data.playerName, character: data.characterName});
-        data.players = roomLists[data.gameID];
-        gameSocket.join(data.gameID).emit('playerJoinedRoom', data);
+        socket.join(data.gameID).emit('joinedGame', {gameID: data.gameID, socketID: gameSocket.id, players: roomLists[data.gameID]});
+        roomLists[data.gameID].push({player: data.player});
+        socket.broadcast.to(data.gameID).emit('newPlayerJoinedGame', data.player);
     } else{
         this.emit('error', {message: "This room does not exist."});
     }
@@ -45,7 +49,8 @@ function playerJoinGame(data){
 
 function getPlayerData(data){
     console.log(roomLists[data.gameID]);
-    gameSocket.emit("currentPlayers", roomLists[data.gameID]);
+    var socket = this;
+    socket.emit("currentPlayers", roomLists[data.gameID]);
 }
 
 function enterGlobalRoom(data){
@@ -64,11 +69,16 @@ function playerJoinedRoom(data){
 
 function messageRoom(data){
     console.log(data);
+    var socket = this;
     var message = {playerName: data.playerName, message: data.message};
     //io.in(data.gameID).emit("message", message);
     console.log(io.sockets.adapter.rooms[data.gameID]);
-    gameSocket.broadcast.to(data.gameID).emit("message", message);
+    socket.broadcast.to(data.gameID).emit("message", message);
     //io.emit("message", message);
+}
+
+function isInArray(value, array) {
+    return array.indexOf(value) > -1;
 }
 
 function error(data){
